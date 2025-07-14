@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>User API Frontend</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #eef2f7;
+      margin: 40px;
+      color: #333;
+    }
+
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .header img {
+      height: 50px;
+    }
+
+    h2 {
+      color: #2c3e50;
+      text-shadow: 1px 1px 2px #ccc;
+      margin: 0;
+    }
+
+    h3 {
+      color: #34495e;
+      margin-top: 50px;
+    }
+
+    table {
+      width: 70%;
+      border-collapse: collapse;
+      margin-top: 20px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      background-color: #ffffff;
+      border-radius: 6px;
+      overflow: hidden;
+    }
+
+    th, td {
+      padding: 14px 18px;
+      text-align: left;
+    }
+
+    th {
+      background-color: #2980b9;
+      color: white;
+      font-size: 16px;
+      letter-spacing: 1px;
+    }
+
+    tr:nth-child(even) {
+      background-color: #f4f6f8;
+    }
+
+    tr:hover {
+      background-color: #e1ecf4;
+      transition: 0.2s ease-in-out;
+    }
+
+    input[type="text"], input[type="email"] {
+      padding: 10px;
+      width: 200px;
+      margin-right: 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 15px;
+    }
+
+    button {
+      padding: 10px 18px;
+      background-color: #27ae60;
+      border: none;
+      color: white;
+      font-size: 15px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #219150;
+    }
+
+    #formMsg {
+      margin-top: 12px;
+      font-weight: bold;
+      color: #d63031;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <img src="https://www.univio.com/wp-content/uploads/2023/07/Gcp-Logo-1-1024x632.png" alt="GCP Logo">
+    <h2>Welcome to DevOps Google Cloud Users</h2>
+  </div>
+
+  <table id="userTable">
+    <tr><th>ID</th><th>Name</th><th>Email</th></tr>
+  </table>
+
+  <h3>Add New User</h3>
+  <form id="userForm">
+    <input type="text" id="name" placeholder="Enter Name" required>
+    <input type="email" id="email" placeholder="Enter Email" required>
+    <button type="submit">Add User</button>
+  </form>
+  <p id="formMsg"></p>
+
+  <script>
+    const backendIP = "http://104.154.115.111:5000"; // Replace with your backend IP if needed
+
+    function loadUsers() {
+      fetch(`${backendIP}/users`)
+        .then(response => response.json())
+        .then(users => {
+          const table = document.getElementById("userTable");
+          users.forEach(user => {
+            const row = table.insertRow();
+            row.insertCell(0).innerText = user.id;
+            row.insertCell(1).innerText = user.name;
+            row.insertCell(2).innerText = user.email;
+          });
+        })
+        .catch(err => {
+          console.error("Failed to load users:", err);
+        });
+    }
+
+    document.getElementById("userForm").addEventListener("submit", function(e) {
+      e.preventDefault();
+      const name = document.getElementById("name").value;
+      const email = document.getElementById("email").value;
+
+      fetch(`${backendIP}/users/add`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, email })
+      })
+      .then(res => res.json())
+      .then(result => {
+        document.getElementById("formMsg").textContent = result.message || result.error;
+        location.reload();
+      })
+      .catch(err => {
+        document.getElementById("formMsg").textContent = "Error adding user.";
+        console.error("Add error:", err);
+      });
+    });
+
+    loadUsers();
+  </script>
+</body>
+</html>
